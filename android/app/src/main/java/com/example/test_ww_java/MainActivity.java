@@ -32,10 +32,10 @@ public class MainActivity extends FlutterActivity {
                 System.out.println("call recognize");
                 String audioPath = call.argument("audio_path");
 
-                float[] batteryLevel = null;
+                float[] processedAudioResult = null;
                 try {
-                    batteryLevel = new JlibrosaMFCC().processAudio(audioPath);
-                    result.success(batteryLevel);
+                    processedAudioResult = new JlibrosaMFCC().processAudio(audioPath);
+                    result.success(processedAudioResult);
                 } catch (FileFormatNotSupportedException e) {
                     throw new RuntimeException(e);
                 } catch (IOException e) {
