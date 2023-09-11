@@ -32,15 +32,11 @@ public class MainActivity extends FlutterActivity {
                 System.out.println("call recognize");
                 String audioPath = call.argument("audio_path");
 
-                float[] processedAudioResult = null;
+                float[] processedAudioResult;
                 try {
                     processedAudioResult = new JlibrosaMFCC().processAudio(audioPath);
                     result.success(processedAudioResult);
-                } catch (FileFormatNotSupportedException e) {
-                    throw new RuntimeException(e);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                } catch (WavFileException e) {
+                } catch (FileFormatNotSupportedException | IOException | WavFileException e) {
                     throw new RuntimeException(e);
                 }
 
