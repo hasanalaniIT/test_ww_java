@@ -68,8 +68,7 @@ public class MainActivity extends FlutterActivity {
                 NDArray nd = manager.create(mfccFeatures);
                 NDArray mfccTransposed = nd.transpose();
                 NDArray mfccMean = mfccTransposed.mean(axes);
-                NDArray mfccExpanded = mfccMean.expandDims(0);
-                mfccResult = mfccExpanded;
+                mfccResult = mfccMean.expandDims(0);
                 finalResult = mfccResult.toFloatArray();
 //                System.out.println("MFCC RESULT FROM JAVA :: " + Arrays.toString(finalResult));
             }
