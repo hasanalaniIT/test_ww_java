@@ -61,11 +61,6 @@ flutter {
 
 repositories {
     mavenCentral()
-
-    maven {
-        name = "TarsosDSP repository"
-        url = "https://mvn.0110.be/releases"
-    }
 }
 
 dependencies {
@@ -78,5 +73,4 @@ dependencies {
     implementation "ai.djl.android:core"
     runtimeOnly "ai.djl.pytorch:pytorch-engine"
     runtimeOnly "ai.djl.android:pytorch-native"
-    runtimeOnly "ai.djl.android:onnxruntime"
 }
