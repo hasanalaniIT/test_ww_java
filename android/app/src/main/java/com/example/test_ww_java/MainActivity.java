@@ -33,7 +33,7 @@ public class MainActivity extends FlutterActivity {
 
                 float[] processedAudioResult;
                 try {
-                    processedAudioResult = new JlibrosaMFCC().processAudio(audioPath);
+                    processedAudioResult = new LibRosaMFCC().processAudio(audioPath);
                     result.success(processedAudioResult);
                 } catch (FileFormatNotSupportedException | IOException | WavFileException e) {
                     throw new RuntimeException(e);
@@ -47,7 +47,7 @@ public class MainActivity extends FlutterActivity {
         });
     }
 
-    public class JlibrosaMFCC {
+    public class LibRosaMFCC {
         JLibrosa jLibrosa = new JLibrosa();
         NDArray mfccResult;
         float[] finalResult;
