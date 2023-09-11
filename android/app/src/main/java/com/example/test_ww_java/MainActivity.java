@@ -63,26 +63,19 @@ public class MainActivity extends FlutterActivity {
             String fullPath = assetFilePath(getApplicationContext(), audioPath);
             if (fullPath == null) return null;
             float[] audio_file = jLibrosa.loadAndRead(fullPath, sampleRate, 1);
-//            System.out.println("audio_file_Librosa==== " + Arrays.toString(audio_file));
             int[] axes = {0};
             sampleRate = jLibrosa.getSampleRate();
             float[][] mfccFeatures = jLibrosa.generateMFCCFeatures(audio_file, sampleRate, nfcc);
-
-
-//            System.out.println(Arrays.deepToString(mfccFeatures));
-//            System.out.println("sampleRate==== " + sampleRate);
-//            System.out.println("Length of mfccFeatures==== " + mfccFeatures.length);
+//            System.out.println("Audio Data======= " + Arrays.toString(audio_file));
 
             try (NDManager manager = NDManager.newBaseManager()) {
                 NDArray nd = manager.create(mfccFeatures);
-//                System.out.println("Numpy Array=====" + Arrays.toString(nd.toFloatArray()));
-
                 NDArray mfccTransposed = nd.transpose();
                 NDArray mfccMean = mfccTransposed.mean(axes);
                 NDArray mfccExpanded = mfccMean.expandDims(0);
                 mfccResult = mfccExpanded;
                 finalResult = mfccResult.toFloatArray();
-                System.out.println("MFCC RESULT FROM JAVA :: " + Arrays.toString(finalResult));
+//                System.out.println("MFCC RESULT FROM JAVA :: " + Arrays.toString(finalResult));
             }
             return finalResult;
         }
