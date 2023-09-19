@@ -1,6 +1,10 @@
 package com.example.test_ww_java;
 
+import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_CANCEL;
+import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_SUCCESS;
+
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -11,6 +15,7 @@ import com.jlibrosa.audio.wavFile.WavFileException;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.util.Arrays;
 
 
 import ai.djl.ndarray.NDArray;
@@ -18,6 +23,8 @@ import ai.djl.ndarray.NDManager;
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.plugin.common.MethodChannel;
+import com.arthenica.mobileffmpeg.Config;
+import com.arthenica.mobileffmpeg.FFmpeg;
 
 
 public class MainActivity extends FlutterActivity {
@@ -57,6 +64,7 @@ public class MainActivity extends FlutterActivity {
         public float[] processAudio(String audioPath) throws FileFormatNotSupportedException, IOException, WavFileException {
             String fullPath = assetFilePath(getApplicationContext(), audioPath);
             if (fullPath == null) return null;
+            fullPath = convertM4AToWAV(fullPath);
             float[] audio_file = jLibrosa.loadAndRead(fullPath, sampleRate, 1);
             int[] axes = {0};
             sampleRate = jLibrosa.getSampleRate();
@@ -75,6 +83,22 @@ public class MainActivity extends FlutterActivity {
         }
     }
 
+    public static String convertM4AToWAV(String inputPath) {
+        String output= inputPath.replaceAll("\\.m4a$", ".wav");
+        String[] cmd = {
+                "-i", inputPath,
+                "-acodec", "pcm_s16le",
+                "-ar", "16000", // Set the sample rate to 16,000 Hz
+                output
+        };
+        System.out.println(Arrays.toString(cmd));
+        int rc = FFmpeg.execute(cmd);
+        if (rc == RETURN_CODE_CANCEL) {
+            Log.i(Config.TAG, "Command execution cancelled by user.");
+            return null;
+        }
+        return output;
+    }
     private String assetFilePath(Context context, String assetName) {
         File file = new File(context.getFilesDir(), assetName);
         if (file.exists() && file.length() > 0) {
