@@ -73,4 +73,5 @@ dependencies {
     implementation "ai.djl.android:core"
     runtimeOnly "ai.djl.pytorch:pytorch-engine"
     runtimeOnly "ai.djl.android:pytorch-native"
+    implementation 'com.arthenica:mobile-ffmpeg-full:4.4'
 }
