@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:test_ww_java/predictor.dart';
 
+import 'mic.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -35,7 +37,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   static const platform = MethodChannel('com.example.test_ww_java/asr');
 
-// Get battery level.
   String platformChannelResult = 'Unknown  level.';
 
   Future<void> _getResult() async {
@@ -44,7 +45,7 @@ class _MyHomePageState extends State<MyHomePage> {
       // example audios : "negative_reference.wav" , "positive_ww.wav"
       // Make sure to add the audio files inside /data/data/com.example.test_ww_java/files/
       var result = await platform.invokeMethod(
-          'process_audio', {"audio_path": "negative_reference.wav"});
+          'process_audio', {"audio_path": "test_mic.m4a"});
       result = await TflitePredictor().predict(result);
       channelResult = 'Wake-Word Accuracy level :: ${result.toString()}';
     } on PlatformException catch (e) {
@@ -64,7 +65,9 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             ElevatedButton(
-              onPressed: _getResult,
+              onPressed: () async {
+                await Mic().start();
+              },
               child: const Text('Get Result'),
             ),
             Text(platformChannelResult),
