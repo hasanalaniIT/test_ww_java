@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:test_ww_java/predictor.dart';
 
 import 'mic.dart';
@@ -35,25 +34,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  static const platform = MethodChannel('com.example.test_ww_java/asr');
-
   String platformChannelResult = 'Unknown  level.';
-
-  Future<void> _getResult() async {
-    String channelResult;
-    try {
-      // example audios : "negative_reference.wav" , "positive_ww.wav"
-      // Make sure to add the audio files inside /data/data/com.example.test_ww_java/files/
-      var result = await platform.invokeMethod(
-          'process_audio', {"audio_path": "test_mic.m4a"});
-      result = await TflitePredictor().predict(result);
-      channelResult = 'Wake-Word Accuracy level :: ${result.toString()}';
-    } on PlatformException catch (e) {
-      channelResult = "Failed to get Accuracy level: '${e.message}'.";
-    }
-
+  Future<void> getResult() async {
+    var result = await TflitePredictor().wakeWordResult();
     setState(() {
-      platformChannelResult = channelResult;
+      platformChannelResult = result;
     });
   }
 
@@ -66,11 +51,26 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             ElevatedButton(
               onPressed: () async {
-                await Mic().start();
+                await getResult();
               },
-              child: const Text('Get Result'),
+              child: const Text(
+                'Start Recording',
+                style: TextStyle(fontSize: 24),
+              ),
             ),
-            Text(platformChannelResult),
+            ElevatedButton(
+              onPressed: () async {
+                await Mic().stop();
+              },
+              child: const Text(
+                'Stop Recording',
+                style: TextStyle(fontSize: 24),
+              ),
+            ),
+            Text(
+              platformChannelResult,
+              style: const TextStyle(fontSize: 24),
+            ),
           ],
         ),
       ),
