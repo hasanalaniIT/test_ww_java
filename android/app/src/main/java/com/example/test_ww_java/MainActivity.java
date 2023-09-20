@@ -60,11 +60,11 @@ public class MainActivity extends FlutterActivity {
         float[] finalResult;
         int sampleRate = 16000;
         int nfcc = 40;
-
         public float[] processAudio(String audioPath) throws FileFormatNotSupportedException, IOException, WavFileException {
             String fullPath = assetFilePath(getApplicationContext(), audioPath);
             if (fullPath == null) return null;
-            fullPath = convertM4AToWAV(fullPath);
+            if (!fullPath.endsWith(".wav")) fullPath = convertM4AToWAV(fullPath);
+
             float[] audio_file = jLibrosa.loadAndRead(fullPath, sampleRate, 1);
             int[] axes = {0};
             sampleRate = jLibrosa.getSampleRate();
@@ -94,13 +94,13 @@ public class MainActivity extends FlutterActivity {
         System.out.println(Arrays.toString(cmd));
         int rc = FFmpeg.execute(cmd);
         if (rc == RETURN_CODE_CANCEL) {
-            Log.i(Config.TAG, "Command execution cancelled by user.");
+//            Log.i(Config.TAG, "Command execution cancelled by user.");
             return null;
         }
         return output;
     }
     private String assetFilePath(Context context, String assetName) {
-        File file = new File(context.getFilesDir(), assetName);
+        File file = new File(context.getCacheDir(), assetName);
         if (file.exists() && file.length() > 0) {
             System.out.println("file.getAbsolutePath() " + file.getAbsolutePath());
 
