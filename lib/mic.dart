@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 import 'package:wav/wav_file.dart';
 
@@ -19,15 +20,15 @@ class Mic {
   double _recordingDuration = 0.0;
   int _silenceDetectedTimes = 0;
   Timer? countDownTimer;
-  String? audio;
+  String? audioPath;
   final StreamController<bool> listeningStateController =
       StreamController<bool>.broadcast();
 
-  Future<void> start() async {
+  Future<String?> start() async {
     if (await _audioRecorder.hasPermission()) {
       print("STARTED RECORDING");
       _amplitudeSub = _audioRecorder
-          .onAmplitudeChanged(const Duration(milliseconds: 300))
+          .onAmplitudeChanged(const Duration(milliseconds: 100))
           .listen((amp) {
         if (amp.current <= -22.0) {
           print("SILENCE DETECTED");
@@ -38,27 +39,35 @@ class Mic {
         _amplitude = amp;
         print("Amp change :: ${amp.current}");
       });
-
-      _audioRecorder.start(encoder: AudioEncoder.wav);
+      String? tempAudioSamplePath = await getTempAudioSamplePath();
+      _audioRecorder.start(
+        path: tempAudioSamplePath,
+        encoder: AudioEncoder.wav,
+        samplingRate: 16000,
+      );
       listeningStateController.add(true);
-      startCountDown();
+      return await startCountDown();
     }
+    return null;
   }
 
-  void startCountDown() {
-    countDownTimer = Timer.periodic(const Duration(milliseconds: 500), (_) {
+  Future<String?> startCountDown() async {
+    countDownTimer =
+        Timer.periodic(const Duration(milliseconds: 500), (_) async {
       _recordingDuration += 0.5;
-      if (_recordingDuration > 14) {
+      if (_recordingDuration > 3) {
         print("RECORDING LIMIT EXCEEDED");
-        stop();
+        audioPath = await stop();
         return;
       }
 
       if (_recordingDuration > 2 && _silenceDetectedTimes > 2) {
         print("SILENCE LIMIT EXCEEDED");
-        stop();
+        audioPath = await stop();
+        return;
       }
     });
+    return audioPath;
   }
 
   Future<String?> stop() async {
@@ -66,13 +75,13 @@ class Mic {
       print("STOPPED RECORDING");
       listeningStateController.add(false);
       countDownTimer?.cancel();
-      audio = await _audioRecorder.stop();
+      var audio = await _audioRecorder.stop();
       _audioRecorder.dispose();
 
       _recordingDuration = 0;
       _silenceDetectedTimes = 0;
-      print("Audio path :: $audio");
-      return audio;
+      print("Audio at stop :: $audio");
+      return audio?.split("/")[6];
     }
     return null;
   }
@@ -81,8 +90,16 @@ class Mic {
     return await _audioRecorder.isRecording();
   }
 
-  String? getAudioPath() {
-    return audio;
+  Future<String?> getTempAudioSamplePath() async {
+    try {
+      final cacheDir = await getTemporaryDirectory();
+      const filename = 'temp_mic_prediction_sample.wav';
+      final tempAudioSamplePath = '${cacheDir.path}/$filename';
+      return tempAudioSamplePath;
+    } catch (e) {
+      print('Error getting temporary audio sample path: $e');
+    }
+    return null;
   }
 
   Future<Uint8List> getAudioData(String path) async {
