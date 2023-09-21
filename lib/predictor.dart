@@ -40,9 +40,7 @@ class TflitePredictor {
       // example audios : "negative_reference.wav" , "positive_ww.wav"
       // Make sure to add the audio files inside /data/data/com.example.test_ww_java/files/
       await Mic().start();
-      print("Mic().start() Audio");
       sleep(const Duration(milliseconds: 420));
-      print("Mic Stopped");
       var audioRecordPath = await Mic().stop();
       var result = await processAudio(audioRecordPath!);
       result = await predict(result);
