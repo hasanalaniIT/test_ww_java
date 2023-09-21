@@ -16,9 +16,9 @@ class TflitePredictor {
     output = outputShape.reshape([1, 2]);
     interpreter.run(audioChunk, output);
     print("Output Prediction and Accuracy :: $output");
-    if (output[0][1] <= 0.94) await wakeWordResult();
-
-    return output[0][1];
+    if (output[0][1] >= 0.92) return output[0][1];
+    await wakeWordResult();
+    return 0;
   }
 
   Future<dynamic> processAudio(String audioPath) async {
